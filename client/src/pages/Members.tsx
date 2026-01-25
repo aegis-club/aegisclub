@@ -11,57 +11,75 @@ import {
   dividerVariants,
 } from "@/styles/Animations";
 
-type MainCategory = "Faculty" | "Team" | null;
+type MainCategory = "Faculty" | "Co-Convener" | "Team" | null;
 type TeamCategory = "Tech" | "Operations" | "Media" | "Cultural";
-type YearFilter = "2nd" | "3rd" | "4th" | null;
 
 const Members = () => {
-  const [mainCategory, setMainCategory] = useState<MainCategory | null>(null);
+  const [mainCategory, setMainCategory] = useState<MainCategory>(null);
   const [teamCategory, setTeamCategory] = useState<TeamCategory | null>(null);
-  const [yearFilter, setYearFilter] = useState<YearFilter>(null);
-  const [showTeamFilters, setShowTeamFilters] = useState(false); // Start collapsed on page load
+  const [showTeamFilters, setShowTeamFilters] = useState(false);
 
-  // Filter members based on all selections
+  // Filter members based on main selection and team selection
   const getFilteredMembers = () => {
-    // If no main category is selected, return empty array
-    if (!mainCategory) {
-      return [];
-    }
-
-    let filtered = members;
+    if (!mainCategory) return [];
 
     if (mainCategory === "Faculty") {
-      // Show only faculty members
-      filtered = members.filter((member) => member.role === "Faculty");
-
-      // Sort to show HOD first
-      filtered = filtered.sort((a, b) => {
-        if (a.position?.toLowerCase().includes("hod")) return -1;
-        if (b.position?.toLowerCase().includes("hod")) return 1;
-        return 0;
-      });
-    } else {
-      // Team category - require a specific team to be selected
-      if (!teamCategory) {
-        // No specific team selected yet - show nothing
-        return [];
-      }
-
-      // Filter by role and specific team
-      filtered = members.filter(
-        (member) => member.role === "Student" && member.team === teamCategory,
-      );
-
-      // Filter by year if selected
-      if (yearFilter) {
-        filtered = filtered.filter((member) => member.year === yearFilter);
-      }
+      return members
+        .filter((member) => member.role === "Faculty")
+        .sort((a, b) => {
+          const pos = a.position?.toLowerCase() || "";
+          if (pos.includes("hod") || pos.includes("head")) return -1;
+          const posB = b.position?.toLowerCase() || "";
+          if (posB.includes("hod") || posB.includes("head")) return 1;
+          return 0;
+        });
     }
 
-    return filtered;
+    if (mainCategory === "Co-Convener") {
+      return members.filter((member) => member.role === "Co-Convener");
+    }
+
+    if (mainCategory === "Team") {
+      if (!teamCategory) return [];
+      // Return all student members of the selected team
+      return members.filter(
+        (member) => member.role === "Student" && member.team === teamCategory,
+      );
+    }
+
+    return [];
   };
 
   const filteredMembers = getFilteredMembers();
+
+  // Helper to structure team members into sections
+  const getTeamSections = () => {
+    // Only sort if we are in Team view
+    if (mainCategory !== "Team")
+      return { leads: [], fourthYears: [], thirdYears: [], secondYears: [] };
+
+    // Leads logic: Check for "Lead" or "Co-Lead" in position
+    // Note: Some leads might not have 'Lead' in position if data is messy, but based on exploring, they usually do.
+    const leads = filteredMembers.filter(
+      (m) =>
+        m.position?.toLowerCase().includes("lead") ||
+        m.position?.toLowerCase().includes("co-lead"),
+    );
+
+    const nonLeads = filteredMembers.filter(
+      (m) =>
+        !m.position?.toLowerCase().includes("lead") &&
+        !m.position?.toLowerCase().includes("co-lead"),
+    );
+
+    const fourthYears = nonLeads.filter((m) => m.year === "4th");
+    const thirdYears = nonLeads.filter((m) => m.year === "3rd");
+    const secondYears = nonLeads.filter((m) => m.year === "2nd");
+
+    return { leads, fourthYears, thirdYears, secondYears };
+  };
+
+  const { leads, fourthYears, thirdYears, secondYears } = getTeamSections();
 
   return (
     <div className="min-h-screen">
@@ -99,53 +117,40 @@ const Members = () => {
               ></motion.div>
             </div>
 
-            <motion.p
-              className="text-lg text-gray-300 max-w-3xl mx-auto leading-relaxed mb-12"
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={simpleFadeIn}
-            >
-              The "Aegis Cyber Club" is a student-run community where members
-              work together to learn, share ideas, and grow their skills in
-              cybersecurity and technology.
-            </motion.p>
-
-            {/* Main Category Filter (Faculty / Team) */}
+            {/* Main Category Tabs */}
             <motion.div
-              className="flex justify-center gap-4 mb-8"
+              className="flex flex-wrap justify-center gap-4 mb-8"
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
               variants={simpleFadeIn}
             >
-              {(["Faculty", "Team"] as MainCategory[]).map((category) => (
-                <button
-                  key={category}
-                  onClick={() => {
-                    if (category === "Faculty") {
-                      setMainCategory("Faculty");
-                      setShowTeamFilters(false);
-                      setTeamCategory(null);
-                      setYearFilter(null);
-                    } else {
-                      // Team button clicked
-                      if (mainCategory === "Team") {
-                        // Already on Team - toggle the filters
-                        setShowTeamFilters(!showTeamFilters);
-                        if (showTeamFilters) {
-                          // Collapsing - reset filters
-                          setTeamCategory(null);
-                          setYearFilter(null);
-                        }
+              {(["Faculty", "Co-Convener", "Team"] as MainCategory[]).map(
+                (category) => (
+                  <button
+                    key={category}
+                    onClick={() => {
+                      if (category !== "Team") {
+                        setMainCategory(category);
+                        setShowTeamFilters(false);
+                        setTeamCategory(null);
                       } else {
-                        // Switching from Faculty to Team
-                        setMainCategory("Team");
-                        setShowTeamFilters(true);
+                        // Team button clicked
+                        if (mainCategory === "Team") {
+                          // Already on Team - toggle the filters
+                          setShowTeamFilters(!showTeamFilters);
+                          if (showTeamFilters) {
+                            // Collapsing - reset filters
+                            setTeamCategory(null);
+                          }
+                        } else {
+                          // Switching to Team
+                          setMainCategory("Team");
+                          setShowTeamFilters(true);
+                        }
                       }
-                    }
-                  }}
-                  className={`
+                    }}
+                    className={`
                     px-8 py-3 rounded-full font-semibold transition-all duration-300
                     ${
                       mainCategory === category
@@ -153,13 +158,14 @@ const Members = () => {
                         : "bg-zinc-800 text-gray-300 hover:bg-zinc-700 hover:text-white"
                     }
                   `}
-                >
-                  {category}
-                </button>
-              ))}
+                  >
+                    {category}
+                  </button>
+                ),
+              )}
             </motion.div>
 
-            {/* Team Category Filter (only for Team) - with expand/collapse animation */}
+            {/* Team Category Filter (only for Team) */}
             <AnimatePresence>
               {mainCategory === "Team" && showTeamFilters && (
                 <motion.div
@@ -186,7 +192,6 @@ const Members = () => {
                       key={team}
                       onClick={() => {
                         setTeamCategory(teamCategory === team ? null : team);
-                        setYearFilter(null);
                       }}
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}
@@ -206,75 +211,211 @@ const Members = () => {
                 </motion.div>
               )}
             </AnimatePresence>
-
-            {/* Year Filter (only when Team is selected AND a team category is chosen) */}
-            <AnimatePresence>
-              {mainCategory === "Team" && teamCategory && (
-                <motion.div
-                  key="year-filters"
-                  className="flex justify-center gap-3 overflow-hidden"
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.4, ease: "easeInOut" }}
-                >
-                  {(["2nd", "3rd", "4th"] as YearFilter[]).map(
-                    (year, index) => (
-                      <motion.button
-                        key={year}
-                        onClick={() =>
-                          setYearFilter(yearFilter === year ? null : year)
-                        }
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.3, delay: index * 0.1 }}
-                        className={`
-                        px-5 py-2 rounded-full text-sm font-medium transition-all duration-300
-                        ${
-                          yearFilter === year
-                            ? "bg-blue-500 text-white shadow-md shadow-blue-500/50"
-                            : "bg-zinc-800/30 text-gray-500 hover:bg-zinc-700 hover:text-white border border-zinc-700/50"
-                        }
-                      `}
-                      >
-                        {year} Year
-                      </motion.button>
-                    ),
-                  )}
-                </motion.div>
-              )}
-            </AnimatePresence>
           </div>
 
-          {/* Members grid */}
+          {/* Members Display */}
           <motion.div
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
             variants={container}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.1 }}
-            key={`${mainCategory}-${teamCategory}-${yearFilter}`}
+            key={`${mainCategory}-${teamCategory}`}
+            className="min-h-[400px]"
           >
-            {filteredMembers.length > 0 ? (
-              filteredMembers.map((member) => (
-                <motion.div
-                  key={member.id}
-                  className="h-full"
-                  variants={item}
-                  whileHover="hover"
-                >
-                  <MemberCard member={member} />
-                </motion.div>
-              ))
-            ) : (
+            {/* 1. Prompt state */}
+            {!mainCategory && (
               <div className="col-span-full text-center py-12">
                 <p className="text-gray-400 text-lg">
-                  {!mainCategory
-                    ? "Please select Faculty or Team to view members"
-                    : mainCategory === "Team" && !teamCategory
-                      ? "Please select a team (Tech, Operations, Media, or Cultural)"
-                      : "No members found for the selected filters"}
+                  Please select Faculty, Co-Convener, or Team to view members
                 </p>
+              </div>
+            )}
+
+            {/* 2. Team selected but no subteam */}
+            {mainCategory === "Team" && !teamCategory && (
+              <div className="col-span-full text-center py-12">
+                <p className="text-gray-400 text-lg">
+                  Please select a team to view members
+                </p>
+              </div>
+            )}
+
+            {/* 3. Faculty or Convener Grid */}
+            {/* 3. Faculty View with Head separated */}
+            {mainCategory === "Faculty" && (
+              <div className="space-y-12">
+                {/* Head Section */}
+                {filteredMembers
+                  .filter((m) => {
+                    const pos = m.position?.toLowerCase() || "";
+                    return pos.includes("hod") || pos.includes("head");
+                  })
+                  .map((head) => (
+                    <div key={head.id} className="flex justify-center">
+                      <motion.div
+                        className="w-full md:w-[350px]"
+                        variants={item}
+                        whileHover="hover"
+                      >
+                        <MemberCard member={head} />
+                      </motion.div>
+                    </div>
+                  ))}
+
+                {/* Other Faculty Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {filteredMembers
+                    .filter((m) => {
+                      const pos = m.position?.toLowerCase() || "";
+                      return !pos.includes("hod") && !pos.includes("head");
+                    })
+                    .map((member) => (
+                      <motion.div
+                        key={member.id}
+                        className="h-full"
+                        variants={item}
+                        whileHover="hover"
+                      >
+                        <MemberCard member={member} />
+                      </motion.div>
+                    ))}
+                </div>
+              </div>
+            )}
+
+            {/* 4. Co-Convener View */}
+            {mainCategory === "Co-Convener" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
+                {filteredMembers.map((member) => (
+                  <motion.div
+                    key={member.id}
+                    className="h-full w-full md:w-[350px]"
+                    variants={item}
+                    whileHover="hover"
+                  >
+                    <MemberCard member={member} />
+                  </motion.div>
+                ))}
+              </div>
+            )}
+
+            {/* 4. Team Sections */}
+            {mainCategory === "Team" && teamCategory && (
+              <div className="space-y-20">
+                {/* Leads Section */}
+                {leads.length > 0 && (
+                  <div className="w-full">
+                    <motion.h3
+                      className="text-3xl font-bold text-white mb-10 text-center relative inline-block left-1/2 -translate-x-1/2"
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                    >
+                      Current Leads
+                      <span className="absolute -bottom-2 left-0 w-full h-1 bg-blue-500 rounded-full"></span>
+                    </motion.h3>
+                    <div className="flex flex-wrap justify-center gap-8">
+                      {leads.map((member) => (
+                        <motion.div
+                          key={member.id}
+                          className="w-full md:w-[350px]"
+                          variants={item}
+                          whileHover="hover"
+                        >
+                          <MemberCard member={member} />
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* 4th Year Section */}
+                {fourthYears.length > 0 && (
+                  <div>
+                    <motion.h3
+                      className="text-2xl font-bold text-blue-400 mb-8 pl-4 border-l-4 border-blue-500"
+                      initial={{ opacity: 0, x: -20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                    >
+                      4th Year
+                    </motion.h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                      {fourthYears.map((member) => (
+                        <motion.div
+                          key={member.id}
+                          className="h-full"
+                          variants={item}
+                          whileHover="hover"
+                        >
+                          <MemberCard member={member} />
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* 3rd Year Section */}
+                {thirdYears.length > 0 && (
+                  <div>
+                    <motion.h3
+                      className="text-2xl font-bold text-blue-400 mb-8 pl-4 border-l-4 border-blue-500"
+                      initial={{ opacity: 0, x: -20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                    >
+                      3rd Year
+                    </motion.h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                      {thirdYears.map((member) => (
+                        <motion.div
+                          key={member.id}
+                          className="h-full"
+                          variants={item}
+                          whileHover="hover"
+                        >
+                          <MemberCard member={member} />
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* 2nd Year Section */}
+                {secondYears.length > 0 && (
+                  <div>
+                    <motion.h3
+                      className="text-2xl font-bold text-blue-400 mb-8 pl-4 border-l-4 border-blue-500"
+                      initial={{ opacity: 0, x: -20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                    >
+                      2nd Year
+                    </motion.h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                      {secondYears.map((member) => (
+                        <motion.div
+                          key={member.id}
+                          className="h-full"
+                          variants={item}
+                          whileHover="hover"
+                        >
+                          <MemberCard member={member} />
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Empty State for Team */}
+                {leads.length === 0 &&
+                  fourthYears.length === 0 &&
+                  thirdYears.length === 0 &&
+                  secondYears.length === 0 && (
+                    <div className="text-center text-gray-400 text-lg py-12">
+                      No members found for this team.
+                    </div>
+                  )}
               </div>
             )}
           </motion.div>
