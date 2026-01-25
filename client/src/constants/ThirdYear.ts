@@ -70,21 +70,8 @@ export const thirdYearMembers: Member[] = [
     bio: "Passionate member of Aegis Cyber Club's Cultural team.",
     socialLinks: { email: "reddypoojitha875@gmail.com" },
   },
-  
   {
     id: 6,
-    name: "Rakshith N Virat",
-    position: "Member, Aegis",
-    role: "Student",
-    team: "Cultural",
-    year: "3rd",
-    imageUrl:
-      "https://drive.google.com/uc?export=view&id=1q8_fddR8Xod9Ap2UgrZRAljsjKML4V3A",
-    bio: "Awkwardly extroverted who mingles with everyone",
-    socialLinks: { email: "lohitharadhya164@gmail.com" },
-  },
-  {
-    id: 7,
     name: "Sourajit",
     position: "Member, Aegis",
     role: "Student",
@@ -98,8 +85,7 @@ export const thirdYearMembers: Member[] = [
       email: "sourajitsengupta1@gmail.com",
     },
   },
-  
-  
+
   // MEDIA
   {
     id: 16,

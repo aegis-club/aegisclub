@@ -82,8 +82,11 @@ const Members = () => {
   const { leads, fourthYears, thirdYears, secondYears } = getTeamSections();
 
   return (
-    <div className="min-h-screen">
-      <section className="py-24 px-4">
+    <div className="min-h-screen relative">
+      {/* Subtle grid background */}
+      {/* <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff10_1px,transparent_1px),linear-gradient(to_bottom,#ffffff10_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none"></div> */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:28px_28px] pointer-events-none"></div>
+      <section className="py-24 px-4 relative z-10">
         <div className="container mx-auto max-w-7xl">
           {/* Section header */}
           <div className="text-center mb-16">
@@ -222,16 +225,7 @@ const Members = () => {
             key={`${mainCategory}-${teamCategory}`}
             className="min-h-[400px]"
           >
-            {/* 1. Prompt state */}
-            {!mainCategory && (
-              <div className="col-span-full text-center py-12">
-                <p className="text-gray-400 text-lg">
-                  Please select Faculty, Co-Convener, or Team to view members
-                </p>
-              </div>
-            )}
-
-            {/* 2. Team selected but no subteam */}
+            {/* 1. Team selected but no subteam */}
             {mainCategory === "Team" && !teamCategory && (
               <div className="col-span-full text-center py-12">
                 <p className="text-gray-400 text-lg">
@@ -240,8 +234,8 @@ const Members = () => {
               </div>
             )}
 
-            {/* 3. Faculty or Convener Grid */}
-            {/* 3. Faculty View with Head separated */}
+            {/* 2. Faculty or Convener Grid */}
+            {/* 2. Faculty View with Head separated */}
             {mainCategory === "Faculty" && (
               <div className="space-y-12">
                 {/* Head Section */}
@@ -283,7 +277,7 @@ const Members = () => {
               </div>
             )}
 
-            {/* 4. Co-Convener View */}
+            {/* 3. Co-Convener View */}
             {mainCategory === "Co-Convener" && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
                 {filteredMembers.map((member) => (

@@ -16,6 +16,17 @@ export const facultyMembers: Member[] = [
   },
   {
     id: 202,
+    name: "Dr. Deepthi VS",
+    position: "Assistant Professor\nFaculty Co-ordinator, Aegis",
+    role: "Faculty",
+    team: undefined,
+    year: undefined,
+    imageUrl: "", // Add image URL if available
+    bio: "Qualification: M.Tech, Ph.D",
+    socialLinks: {},
+  },
+  {
+    id: 203,
     name: "Padmavathi S",
     position: "Assistant Professor",
     role: "Faculty",
@@ -23,17 +34,6 @@ export const facultyMembers: Member[] = [
     year: undefined,
     imageUrl: "", // Add image URL if available
     bio: "Qualification: M.Tech, (Ph.D)",
-    socialLinks: {},
-  },
-  {
-    id: 203,
-    name: "Dr. Deepthi VS",
-    position: "Assistant Professor",
-    role: "Faculty",
-    team: undefined,
-    year: undefined,
-    imageUrl: "", // Add image URL if available
-    bio: "Qualification: M.Tech, Ph.D",
     socialLinks: {},
   },
   {
