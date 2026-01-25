@@ -150,6 +150,7 @@ const Members = () => {
                           // Switching to Team
                           setMainCategory("Team");
                           setShowTeamFilters(true);
+                          setTeamCategory("Tech");
                         }
                       }
                     }}
