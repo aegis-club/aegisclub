@@ -173,45 +173,35 @@ const Members = () => {
             <AnimatePresence>
               {mainCategory === "Team" && showTeamFilters && (
                 <motion.div
-                  key="team-categories"
-                  className="flex flex-wrap justify-center gap-3 mb-6 overflow-hidden"
+                  className="flex flex-wrap justify-center gap-3 mb-6"
                   initial={{ opacity: 0, height: 0, marginBottom: 0 }}
-                  animate={{
-                    opacity: 1,
-                    height: "auto",
-                    marginBottom: "1.5rem",
-                  }}
+                  animate={{ opacity: 1, height: "auto", marginBottom: "1.5rem" }}
                   exit={{ opacity: 0, height: 0, marginBottom: 0 }}
                   transition={{ duration: 0.4, ease: "easeInOut" }}
                 >
-                  {(
-                    [
-                      "Tech",
-                      "Operations",
-                      "Media",
-                      "Cultural",
-                    ] as TeamCategory[]
-                  ).map((team) => (
-                    <motion.button
-                      key={team}
-                      onClick={() => {
-                        setTeamCategory(teamCategory === team ? null : team);
-                      }}
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.3 }}
-                      className={`
-                        px-6 py-2.5 rounded-full font-medium transition-all duration-300
-                        ${
-                          teamCategory === team
-                            ? "bg-blue-500 text-white shadow-md shadow-blue-500/50"
-                            : "bg-zinc-800/50 text-gray-400 hover:bg-zinc-700 hover:text-white border border-zinc-700"
-                        }
-                      `}
-                    >
-                      {team}
-                    </motion.button>
-                  ))}
+                  {(["Tech", "Operations", "Media", "Cultural"] as TeamCategory[]).map(
+                    (team) => (
+                      <motion.button
+                        key={team}
+                        onClick={() => {
+                          setTeamCategory(teamCategory === team ? null : team);
+                        }}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.3 }}
+                        className={`
+                          px-6 py-2.5 rounded-full font-medium transition-all duration-300
+                          ${
+                            teamCategory === team
+                              ? "bg-blue-500 text-white shadow-md shadow-blue-500/50"
+                              : "bg-zinc-800/50 text-gray-400 hover:bg-zinc-700 hover:text-white border border-zinc-700"
+                          }
+                        `}
+                      >
+                        {team}
+                      </motion.button>
+                    )
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>
