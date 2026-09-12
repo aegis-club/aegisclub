@@ -57,3 +57,4 @@ The server usually runs on `http://localhost:5000` and the frontend on `http://l
 - **Frontend**: React, Vite, TypeScript, Tailwind CSS, Lucide React, Axios, React Router.
 - **Backend**: Node.js, Express, TypeScript, Mongoose, Dotenv, Cors.
 - **Database**: MongoDB.
+  ---aegis
